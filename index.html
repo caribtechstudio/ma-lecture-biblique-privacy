@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ma Lecture Biblique — Lisez votre Bible de façon régulière</title>
+    <meta name="theme-color" content="#080810" />
+  <meta property="og:title" content="Ma Lecture Biblique" />
+  <meta property="og:description" content="L'application iOS pour lire la Bible régulièrement. Programmes personnalisés, statistiques, badges et rappels." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+  <meta name="description" content="Ma Lecture Biblique — L'application iOS pour lire la Bible régulièrement. Programmes personnalisés, statistiques, badges et rappels." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080810;
+      --bg2: #0e0e1a;
+      --bg3: #13131f;
+      --card: #161624;
+      --card2: #1c1c2e;
+      --border: rgba(255,255,255,0.07);
+      --text: #f0f0ff;
+      --text2: #9090b0;
+      --text3: #5a5a80;
+      --indigo: oklch(65% 0.22 265);
+      --indigo-soft: oklch(65% 0.22 265 / 0.15);
+      --purple: oklch(62% 0.22 290);
+      --green: oklch(68% 0.2 155);
+      --amber: oklch(78% 0.18 75);
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(20px, 5vw, 80px); height: 64px;
+      background: rgba(8,8,16,0.8);
+      backdrop-filter: blur(20px) saturate(1.5);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--indigo), var(--purple));
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .nav-logo-text { font-size: 15px; font-weight: 600; color: var(--text); }
+    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links a { font-size: 14px; color: var(--text2); text-decoration: none; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 18px;
+      background: var(--indigo); color: #fff !important;
+      border-radius: 20px; font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: opacity .2s, transform .2s;
+    }
+    .nav-cta:hover { opacity: 0.85; transform: scale(1.02); }
+    .lang-switch {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 3px;
+    }
+    .lang-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 12px; font-weight: 600; font-family: var(--font);
+      color: var(--text3); padding: 4px 10px; border-radius: 16px; transition: all .2s;
+    }
+    .lang-btn.active { background: var(--card2); color: var(--text); }
+    .nav-mobile-btn {
+      display: none; background: none; border: none; cursor: pointer;
+      flex-direction: column; gap: 5px; padding: 4px;
+    }
+    .nav-mobile-btn span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; }
+    @media (max-width: 768px) { .nav-links { display: none; } .nav-mobile-btn { display: flex; } }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: 120px clamp(20px, 5vw, 80px) 80px; position: relative; overflow: hidden;
+    }
+    .hero-orb {
+      position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.22; pointer-events: none;
+    }
+    .hero-orb-1 { width: 600px; height: 600px; top: -100px; left: 50%; transform: translateX(-50%); background: radial-gradient(circle, oklch(62% 0.22 290), transparent 70%); }
+    .hero-orb-2 { width: 400px; height: 400px; bottom: 0; left: -100px; background: radial-gradient(circle, oklch(65% 0.22 265), transparent 70%); }
+    .hero-orb-3 { width: 300px; height: 300px; bottom: 0; right: -50px; background: radial-gradient(circle, oklch(68% 0.2 155), transparent 70%); opacity: 0.12; }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 14px; background: var(--indigo-soft);
+      border: 1px solid oklch(65% 0.22 265 / 0.3); border-radius: 20px;
+      font-size: 12px; font-weight: 500; color: oklch(80% 0.15 265);
+      letter-spacing: .3px; margin-bottom: 28px;
+    }
+    .hero-title {
+      font-size: clamp(36px, 6vw, 72px); font-weight: 800;
+      line-height: 1.08; letter-spacing: -2px; color: var(--text);
+      max-width: 800px; margin-bottom: 20px; text-wrap: balance;
+    }
+    .hero-title .accent {
+      background: linear-gradient(135deg, var(--indigo), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-subtitle {
+      font-size: clamp(16px, 2vw, 20px); color: var(--text2);
+      max-width: 520px; line-height: 1.6; margin-bottom: 40px; text-wrap: pretty;
+    }
+    .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+    .hero-free-note { font-size: 12px; color: var(--text3); margin-bottom: 56px; }
+
+    .btn-appstore {
+      display: flex; align-items: center; gap: 10px; padding: 14px 28px;
+      background: var(--text); color: var(--bg); border-radius: 14px;
+      text-decoration: none; font-weight: 700; font-size: 15px;
+      transition: opacity .2s, transform .2s;
+    }
+    .btn-appstore:hover { opacity: 0.9; transform: translateY(-2px); }
+    .btn-appstore .store-label { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; }
+    .btn-appstore .store-label small { font-size: 10px; font-weight: 400; opacity: .65; text-transform: uppercase; letter-spacing: .5px; }
+    .btn-secondary {
+      display: flex; align-items: center; gap: 8px; padding: 14px 24px;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); border-radius: 14px; text-decoration: none;
+      font-weight: 500; font-size: 15px; transition: background .2s, transform .2s;
+    }
+    .btn-secondary:hover { background: var(--card2); transform: translateY(-2px); }
+
+    /* Phone mockups */
+    .hero-phones { display: flex; align-items: flex-end; justify-content: center; position: relative; width: 100%; max-width: 900px; margin: 0 auto; }
+    .phone-wrap { flex-shrink: 0; position: relative; transition: transform .4s ease; }
+    .phone-wrap:hover { transform: translateY(-8px) scale(1.02) !important; }
+    .phone-wrap.center { z-index: 3; }
+    .phone-wrap.side-left { transform: rotate(-6deg) translateX(30px); z-index: 2; }
+    .phone-wrap.side-right { transform: rotate(6deg) translateX(-30px); z-index: 2; }
+    .phone-frame {
+      width: 220px; border-radius: 38px; background: #0a0a12;
+      border: 2px solid rgba(255,255,255,0.12);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.5), 0 40px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08);
+      overflow: hidden;
+    }
+    .phone-frame img { width: 100%; display: block; }
+    @media (max-width: 600px) { .phone-wrap.side-left, .phone-wrap.side-right { display: none; } .phone-frame { width: 260px; } }
+
+    /* STATS STRIP */
+    .stats-strip {
+      display: flex; align-items: center; justify-content: center;
+      gap: clamp(24px, 5vw, 64px); padding: 48px clamp(20px, 5vw, 80px);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); flex-wrap: wrap;
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--text), oklch(75% 0.15 265));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .stat-label { font-size: 13px; color: var(--text3); margin-top: 4px; }
+
+    /* SECTIONS */
+    section { padding: clamp(60px, 8vw, 120px) clamp(20px, 5vw, 80px); }
+    .max-w { max-width: 1200px; margin: 0 auto; }
+    .section-tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: oklch(75% 0.18 265); margin-bottom: 14px; }
+    .section-title { font-size: clamp(28px, 4vw, 48px); font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; color: var(--text); margin-bottom: 16px; text-wrap: balance; }
+    .section-subtitle { font-size: clamp(15px, 1.8vw, 18px); color: var(--text2); max-width: 540px; line-height: 1.65; text-wrap: pretty; }
+
+    /* FEATURES */
+    .features-header { text-align: center; margin-bottom: 64px; }
+    .features-header .section-subtitle { margin: 0 auto; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto; }
+    .feature-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 28px;
+      transition: border-color .3s, transform .3s, box-shadow .3s;
+    }
+    .feature-card:hover { border-color: rgba(255,255,255,.14); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,.4); }
+    .feature-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .feature-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; letter-spacing: -.3px; }
+    .feature-desc { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+    /* GALLERY */
+    .gallery-section { background: var(--bg2); overflow: hidden; }
+    .gallery-header { text-align: center; margin-bottom: 56px; }
+    .gallery-header .section-subtitle { margin: 0 auto; }
+    .gallery-track-wrap { overflow: hidden; margin: 0 clamp(-20px, -5vw, -80px); padding: 20px 0 40px; }
+    .gallery-track {
+      display: flex; gap: 20px; padding: 0 clamp(20px, 5vw, 80px);
+      overflow-x: auto; scroll-snap-type: x mandatory;
+      scrollbar-width: none; -ms-overflow-style: none;
+      cursor: grab; -webkit-overflow-scrolling: touch;
+    }
+    .gallery-track::-webkit-scrollbar { display: none; }
+    .gallery-track.dragging { cursor: grabbing; }
+    .gallery-slide { flex-shrink: 0; scroll-snap-align: center; width: 220px; }
+    .gallery-phone {
+      width: 220px; border-radius: 36px; background: #0a0a12;
+      border: 2px solid rgba(255,255,255,.1); box-shadow: 0 30px 60px rgba(0,0,0,.5);
+      overflow: hidden; transition: transform .3s;
+    }
+    .gallery-phone:hover { transform: translateY(-6px) scale(1.02); }
+    .gallery-phone img { width: 100%; display: block; }
+    .gallery-caption { text-align: center; margin-top: 14px; font-size: 12px; color: var(--text3); font-weight: 500; }
+    .gallery-dots { display: flex; justify-content: center; gap: 6px; margin-top: 32px; }
+    .gallery-dot {
+      width: 6px; height: 6px; border-radius: 3px; background: var(--text3);
+      transition: width .3s, background .3s; cursor: pointer; border: none; padding: 0;
+    }
+    .gallery-dot.active { width: 22px; background: var(--indigo); }
+
+    /* FAQ */
+    .faq-wrap { max-width: 720px; margin: 0 auto; }
+    .faq-header { text-align: center; margin-bottom: 48px; }
+    .faq-list { display: flex; flex-direction: column; gap: 8px; }
+    .faq-item { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color .2s; }
+    .faq-item.open { border-color: rgba(255,255,255,.12); }
+    .faq-q {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 20px 24px; cursor: pointer; font-size: 15px; font-weight: 600;
+      color: var(--text); background: none; border: none; width: 100%; text-align: left; user-select: none;
+    }
+    .faq-chevron {
+      flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+      background: var(--bg3); display: flex; align-items: center; justify-content: center;
+      transition: transform .3s, background .2s;
+    }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); background: var(--indigo-soft); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height .35s ease, padding .3s; padding: 0 24px; }
+    .faq-item.open .faq-a { max-height: 300px; padding-bottom: 20px; }
+    .faq-a p { font-size: 14px; color: var(--text2); line-height: 1.7; }
+
+    /* CTA */
+    .cta-section { text-align: center; background: var(--bg2); padding: clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px); position: relative; overflow: hidden; }
+    .cta-glow { position: absolute; width: 500px; height: 500px; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%,-50%); background: radial-gradient(circle, oklch(65% 0.22 265 / 0.12), transparent 70%); pointer-events: none; }
+    .cta-title { font-size: clamp(28px, 4vw, 52px); font-weight: 800; letter-spacing: -1.5px; color: var(--text); margin-bottom: 16px; text-wrap: balance; position: relative; }
+    .cta-sub { font-size: clamp(15px, 1.8vw, 18px); color: var(--text2); margin-bottom: 36px; position: relative; }
+    .cta-actions { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; position: relative; }
+
+    /* CONTACT */
+    .contact-wrap { max-width: 560px; margin: 0 auto; }
+    .contact-header { text-align: center; margin-bottom: 40px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 7px; }
+    .form-input, .form-textarea {
+      width: 100%; background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 13px 16px; font-size: 14px; font-family: var(--font);
+      color: var(--text); outline: none; transition: border-color .2s; resize: none;
+    }
+    .form-input:focus, .form-textarea:focus { border-color: oklch(65% 0.22 265 / 0.5); }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--text3); }
+    .form-textarea { height: 120px; }
+    .btn-submit {
+      width: 100%; padding: 14px; background: var(--indigo); color: #fff;
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+      font-family: var(--font); cursor: pointer; transition: opacity .2s, transform .2s; margin-top: 8px;
+    }
+    .btn-submit:hover { opacity: .88; transform: translateY(-1px); }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border); padding: 40px clamp(20px, 5vw, 80px);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;
+    }
+    .footer-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .footer-logo-icon { width: 28px; height: 28px; border-radius: 7px; background: linear-gradient(135deg, var(--indigo), var(--purple)); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .footer-logo-text { font-size: 14px; font-weight: 600; color: var(--text); }
+    .footer-links { display: flex; gap: 24px; list-style: none; flex-wrap: wrap; }
+    .footer-links a { font-size: 13px; color: var(--text3); text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: var(--text2); }
+    .footer-copy { font-size: 12px; color: var(--text3); }
+
+
+
+    /* FAQ — titres de catégorie */
+    .faq-cat-title {
+      font-size: 13px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase;
+      color: oklch(75% 0.18 265); margin: 28px 0 12px; padding-left: 4px;
+    }
+    .faq-cat-title:first-of-type { margin-top: 8px; }
+    /* Scroll reveal */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#home" class="nav-logo">
+    <div class="nav-logo-icon">📖</div>
+    <span class="nav-logo-text" data-fr="Ma Lecture Biblique" data-en="My Bible Reading">Ma Lecture Biblique</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features" data-fr="Fonctionnalités" data-en="Features">Fonctionnalités</a></li>
+    <li><a href="#screenshots" data-fr="Aperçu" data-en="Preview">Aperçu</a></li>
+    <li><a href="#faq" data-fr="FAQ" data-en="FAQ">FAQ</a></li>
+    <li><a href="#contact" data-fr="Contact" data-en="Contact">Contact</a></li>
+    <li>
+      <div class="lang-switch">
+        <button class="lang-btn active" id="btn-fr" onclick="setLang('fr')">FR</button>
+        <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+      </div>
+    </li>
+    <li>
+      <a href="#download" class="nav-cta" data-fr="Télécharger" data-en="Download">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16l-5-5h3V4h4v7h3l-5 5z"/><path d="M20 18H4v2h16v-2z"/></svg>
+        <span data-fr="Télécharger" data-en="Download">Télécharger</span>
+      </a>
+    </li>
+  </ul>
+  <button class="nav-mobile-btn" onclick="toggleMobileMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+
+  <span class="hero-badge">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    <span data-fr="Bientôt disponible sur l'App Store" data-en="Coming soon to the App Store">Bientôt disponible sur l'App Store</span>
+  </span>
+
+  <h1 class="hero-title">
+    <span data-fr="Lisez votre Bible" data-en="Read your Bible">Lisez votre Bible</span><br/>
+    <span class="accent" data-fr="de façon régulière" data-en="consistently">de façon régulière</span>
+  </h1>
+
+  <p class="hero-subtitle" data-fr="Des programmes adaptés à votre rythme, un suivi précis de votre progression et des outils pensés pour les Témoins de Jéhovah." data-en="Reading programs tailored to your pace, precise progress tracking, and tools designed for Jehovah's Witnesses.">
+    Des programmes adaptés à votre rythme, un suivi précis de votre progression et des outils pensés pour les Témoins de Jéhovah.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#download" class="btn-appstore">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      <div class="store-label">
+        <small data-fr="Télécharger sur" data-en="Download on">Télécharger sur</small>
+        <span>App Store</span>
+      </div>
+    </a>
+    <a href="#screenshots" class="btn-secondary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg>
+      <span data-fr="Voir l'aperçu" data-en="See preview">Voir l'aperçu</span>
+    </a>
+  </div>
+
+  <p class="hero-free-note" data-fr="Application gratuite — sans abonnement, sans publicité, sans collecte de données." data-en="Free app — no subscription, no ads, no data collection.">Application gratuite — sans abonnement, sans publicité, sans collecte de données.</p>
+
+  <div class="hero-phones reveal">
+    <div class="phone-wrap side-left">
+      <div class="phone-frame" style="height:460px;overflow:hidden;">
+        <img id="hero-img-left" src="img/asset-ded9fcb6d1.jpg" alt="Statistiques" style="width:100%;object-fit:cover;object-position:top;"  decoding="async" />
+      </div>
+    </div>
+    <div class="phone-wrap center">
+      <div class="phone-frame" style="height:490px;overflow:hidden;">
+        <img id="hero-img-center" src="img/asset-4881a1960d.jpg" alt="Accueil" style="width:100%;object-fit:cover;object-position:top;"  decoding="async" />
+      </div>
+    </div>
+    <div class="phone-wrap side-right">
+      <div class="phone-frame" style="height:460px;overflow:hidden;">
+        <img id="hero-img-right" src="img/asset-5d575ee337.jpg" alt="Programme Sérénité" style="width:100%;object-fit:cover;object-position:top;"  decoding="async" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-item">
+    <div class="stat-num">66</div>
+    <div class="stat-label" data-fr="Livres de la Bible" data-en="Books of the Bible">Livres de la Bible</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">31 089</div>
+    <div class="stat-label" data-fr="Versets à parcourir" data-en="Verses to read">Versets à parcourir</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">3</div>
+    <div class="stat-label" data-fr="Programmes de lecture" data-en="Reading programs">Programmes de lecture</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">100+</div>
+    <div class="stat-label" data-fr="Badges à débloquer" data-en="Badges to unlock">Badges à débloquer</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="max-w">
+    <div class="features-header reveal">
+      <span class="section-tag" data-fr="Fonctionnalités" data-en="Features">Fonctionnalités</span>
+      <h2 class="section-title" data-fr="Tout ce qu'il vous faut pour progresser" data-en="Everything you need to grow">Tout ce qu'il vous faut pour progresser</h2>
+      <p class="section-subtitle" data-fr="Un outil complet, conçu spécifiquement pour accompagner votre lecture biblique au quotidien." data-en="A complete tool, designed specifically to support your daily Bible reading.">Un outil complet, conçu spécifiquement pour accompagner votre lecture biblique au quotidien.</p>
+    </div>
+    <div class="features-grid">
+
+      <div class="feature-card reveal">
+        <div class="feature-icon" style="background:oklch(62% 0.22 290 / 0.15);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="oklch(75% 0.2 290)" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div class="feature-title" data-fr="3 programmes adaptés" data-en="3 tailored programs">3 programmes adaptés</div>
+        <div class="feature-desc" data-fr="Sérénité (l'approche par le rythme), Intégrité (l'approche par l'objectif) et Tranquillité (l'approche par l'habitude). À chacun sa cadence." data-en="Serenity (rhythm approach), Integrity (objective approach) and Tranquillity (habit approach). Pick your pace.">Sérénité (l'approche par le rythme), Intégrité (l'approche par l'objectif) et Tranquillité (l'approche par l'habitude). À chacun sa cadence.</div>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon" style="background:oklch(65% 0.22 265 / 0.15);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="oklch(75% 0.18 265)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </div>
+        <div class="feature-title" data-fr="Lecture Vie Chrétienne" data-en="Christian Life Reading">Lecture Vie Chrétienne</div>
+        <div class="feature-desc" data-fr="La lecture biblique hebdomadaire, synchronisée automatiquement, mise en cache pour 6 mois et accessible hors ligne." data-en="The weekly Bible reading, synced automatically, cached for 6 months and available offline.">La lecture biblique hebdomadaire, synchronisée automatiquement, mise en cache pour 6 mois et accessible hors ligne.</div>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon" style="background:oklch(78% 0.18 75 / 0.12);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="oklch(82% 0.18 75)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="feature-title" data-fr="Programme du Mémorial" data-en="Memorial Reading Program">Programme du Mémorial</div>
+        <div class="feature-desc" data-fr="Suivez le programme de lecture spécial Mémorial, jour par jour, avec suivi de progression intégré." data-en="Follow the special Memorial reading program, day by day, with built-in progress tracking.">Suivez le programme de lecture spécial Mémorial, jour par jour, avec suivi de progression intégré.</div>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon" style="background:oklch(68% 0.2 155 / 0.15);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="oklch(75% 0.18 155)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="feature-title" data-fr="Statistiques détaillées" data-en="Detailed statistics">Statistiques détaillées</div>
+        <div class="feature-desc" data-fr="Visualisez votre avancement : versets lus, livres commencés, sessions de lecture, jours consécutifs et plus." data-en="Visualize your progress: verses read, books started, reading sessions, consecutive days and more.">Visualisez votre avancement : versets lus, livres commencés, sessions de lecture, jours consécutifs et plus.</div>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon" style="background:oklch(62% 0.22 290 / 0.15);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="oklch(72% 0.2 290)" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M8 14l-4 7h16l-4-7"/></svg>
+        </div>
+        <div class="feature-title" data-fr="Badges à débloquer" data-en="Badges to unlock">Badges à débloquer</div>
+        <div class="feature-desc" data-fr="Plus de 100 badges à débloquer — séries, volumes lus, sections bibliques, programmes complétés, lectures spéciales. Certains restent secrets jusqu'au déclic." data-en="Over 100 badges to unlock — streaks, volumes read, Bible sections, completed programs, special readings. Some stay secret until you trigger them.">Plus de 100 badges à débloquer — séries, volumes lus, sections bibliques, programmes complétés, lectures spéciales. Certains restent secrets jusqu'au déclic.</div>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon" style="background:oklch(65% 0.22 265 / 0.15);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="oklch(75% 0.18 265)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <div class="feature-title" data-fr="Rappels intelligents" data-en="Smart reminders">Rappels intelligents</div>
+        <div class="feature-desc" data-fr="Rappel du soir adapté à votre série, résumé hebdomadaire du lundi et notifications du programme actif. Vous choisissez l'heure." data-en="Streak-aware evening reminder, Monday weekly summary, and active-program notifications. You pick the time.">Rappel du soir adapté à votre série, résumé hebdomadaire du lundi et notifications du programme actif. Vous choisissez l'heure.</div>
+      </div>
+
+      <div class="feature-card reveal" style="grid-column:1/-1;">
+        <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+          <div class="feature-icon" style="background:oklch(55% 0.18 25 / 0.15);flex-shrink:0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="oklch(72% 0.18 25)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div>
+            <div class="feature-title" data-fr="Lecture via JW Library" data-en="Reading via JW Library">Lecture via JW Library</div>
+            <div class="feature-desc" style="max-width:600px;" data-fr="Ouvrez directement les versets dans JW Library d'un seul tap. Votre avancement est automatiquement enregistré dans Ma Lecture Biblique." data-en="Open verses directly in JW Library with a single tap. Your progress is automatically recorded in My Bible Reading.">Ouvrez directement les versets dans JW Library d'un seul tap. Votre avancement est automatiquement enregistré dans Ma Lecture Biblique.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="screenshots" class="gallery-section">
+  <div class="max-w">
+    <div class="gallery-header reveal">
+      <span class="section-tag" data-fr="Aperçu" data-en="Preview">Aperçu</span>
+      <h2 class="section-title" data-fr="Conçu pour être beau et simple" data-en="Designed to be beautiful and simple">Conçu pour être beau et simple</h2>
+      <p class="section-subtitle" data-fr="Une interface sombre et élégante, pensée pour la lecture immersive." data-en="A dark, elegant interface designed for immersive reading.">Une interface sombre et élégante, pensée pour la lecture immersive.</p>
+    </div>
+  </div>
+  <div class="gallery-track-wrap">
+    <div class="gallery-track" id="gallery-track">
+      <div class="gallery-slide"><div class="gallery-phone"><img src="img/asset-4881a1960d.jpg" alt="Accueil" loading="lazy"  decoding="async" /></div><p class="gallery-caption" data-fr="Accueil" data-en="Home">Accueil</p></div>
+      <div class="gallery-slide"><div class="gallery-phone"><img src="img/asset-5d575ee337.jpg" alt="Programme Sérénité" loading="lazy"  decoding="async" /></div><p class="gallery-caption" data-fr="Programme Sérénité" data-en="Serenity Program">Programme Sérénité</p></div>
+      <div class="gallery-slide"><div class="gallery-phone"><img src="img/asset-ded9fcb6d1.jpg" alt="Statistiques" loading="lazy"  decoding="async" /></div><p class="gallery-caption" data-fr="Statistiques" data-en="Statistics">Statistiques</p></div>
+      <div class="gallery-slide"><div class="gallery-phone"><img src="img/asset-9daff2cc63.jpg" alt="Mémorial" loading="lazy"  decoding="async" /></div><p class="gallery-caption" data-fr="Programme du Mémorial" data-en="Memorial Program">Programme du Mémorial</p></div>
+      <div class="gallery-slide"><div class="gallery-phone"><img src="img/asset-2677c7d80f.jpg" alt="Vue détaillée" loading="lazy"  decoding="async" /></div><p class="gallery-caption" data-fr="Vue détaillée" data-en="Detail view">Vue détaillée</p></div>
+      <div class="gallery-slide"><div class="gallery-phone"><img src="img/asset-abf8ad2904.jpg" alt="Historique" loading="lazy"  decoding="async" /></div><p class="gallery-caption" data-fr="Historique" data-en="History">Historique</p></div>
+      <div class="gallery-slide"><div class="gallery-phone"><img src="img/asset-c591036a16.jpg" alt="Saisie rapide" loading="lazy"  decoding="async" /></div><p class="gallery-caption" data-fr="Saisie rapide" data-en="Quick entry">Saisie rapide</p></div>
+      <div class="gallery-slide"><div class="gallery-phone"><img src="img/asset-abf8ad2904.jpg" alt="Mémorial 2027" loading="lazy"  decoding="async" /></div><p class="gallery-caption" data-fr="Mémorial 2027" data-en="Memorial 2027">Mémorial 2027</p></div>
+    </div>
+  </div>
+  <div class="gallery-dots" id="gallery-dots"></div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="faq-wrap">
+    <div class="faq-header reveal">
+      <span class="section-tag" data-fr="Questions fréquentes" data-en="Frequently asked">Questions fréquentes</span>
+      <h2 class="section-title" data-fr="Vous avez des questions ?" data-en="Got questions?">Vous avez des questions ?</h2>
+      <p class="section-subtitle" data-fr="Les réponses essentielles, telles qu'on les retrouve dans l'aide intégrée à l'application." data-en="The essential answers, as found in the in-app help.">Les réponses essentielles, telles qu'on les retrouve dans l'aide intégrée à l'application.</p>
+    </div>
+
+    <h3 class="faq-cat-title" data-fr="Pour bien commencer" data-en="Getting started">Pour bien commencer</h3>
+    <div class="faq-list">
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Par où commencer ?" data-en="Where should I start?">Par où commencer ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Si vous débutez la lecture de la Bible, ouvrez l'application, créez un programme adapté à votre rythme dans l'onglet Objectifs et lancez-vous. Une vidéo d'introduction est proposée avant chaque livre biblique pour situer le contexte et les thèmes principaux." data-en="If you're new to Bible reading, open the app, create a program that fits your pace in the Goals tab, and get started. A short intro video is offered before each Bible book to set the context and main themes.">Si vous débutez la lecture de la Bible, ouvrez l'application, créez un programme adapté à votre rythme dans l'onglet Objectifs et lancez-vous. Une vidéo d'introduction est proposée avant chaque livre biblique pour situer le contexte et les thèmes principaux.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="À quoi servent les vidéos d'introduction ?" data-en="What are the per-book intro videos for?">À quoi servent les vidéos d'introduction ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Avant chaque livre biblique, une courte vidéo d'introduction présente le contexte, l'auteur et les thèmes principaux. Elle s'affiche automatiquement la première fois que vous abordez le livre, et l'app retient celles que vous avez vues." data-en="Before each Bible book, a short intro video covers the context, author and main themes. It appears automatically the first time you open the book, and the app remembers which ones you've watched.">Avant chaque livre biblique, une courte vidéo d'introduction présente le contexte, l'auteur et les thèmes principaux. Elle s'affiche automatiquement la première fois que vous abordez le livre, et l'app retient celles que vous avez vues.</p></div>
+      </div>
+    </div>
+
+    <h3 class="faq-cat-title" data-fr="Programmes de lecture" data-en="Reading programs">Programmes de lecture</h3>
+    <div class="faq-list">
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Qu'est-ce qu'un programme de lecture ?" data-en="What is a reading program?">Qu'est-ce qu'un programme de lecture ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Un programme structure votre lecture autour d'une cible précise (Bible entière, Ancien ou Nouveau Testament, collections thématiques, livres choisis). L'application propose trois approches — Sérénité, Intégrité et Tranquillité — qui se distinguent par leur logique de progression." data-en="A program structures your reading around a specific target (the whole Bible, Old or New Testament, thematic collections, chosen books). The app offers three approaches — Serenity, Integrity and Tranquillity — each with its own progression logic.">Un programme structure votre lecture autour d'une cible précise (Bible entière, Ancien ou Nouveau Testament, collections thématiques, livres choisis). L'application propose trois approches — Sérénité, Intégrité et Tranquillité — qui se distinguent par leur logique de progression.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Programme Sérénité, comment ça marche ?" data-en="How does the Serenity program work?">Programme Sérénité, comment ça marche ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Sérénité est un programme à rythme libre, sans date butoir. Vous définissez la quantité quotidienne souhaitée (3 chapitres par défaut) et vous avancez à votre rythme. La durée totale s'ajuste automatiquement. Idéal pour une lecture durable et apaisée." data-en="Serenity is a free-paced program with no deadline. You set your preferred daily amount (3 chapters by default) and progress at your own pace. The total duration adjusts automatically. Ideal for sustainable, peaceful reading.">Sérénité est un programme à rythme libre, sans date butoir. Vous définissez la quantité quotidienne souhaitée (3 chapitres par défaut) et vous avancez à votre rythme. La durée totale s'ajuste automatiquement. Idéal pour une lecture durable et apaisée.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Programme Intégrité, comment ça marche ?" data-en="How does the Integrity program work?">Programme Intégrité, comment ça marche ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Intégrité est un programme orienté objectif avec date cible. Vous choisissez la date à laquelle vous voulez avoir terminé, et l'application calcule la portion à lire chaque jour. Si vous prenez du retard, la portion s'ajuste pour rester réaliste." data-en="Integrity is a goal-oriented program with a target date. You choose when you want to finish, and the app calculates the daily portion needed. If you fall behind, the portion adjusts to stay realistic.">Intégrité est un programme orienté objectif avec date cible. Vous choisissez la date à laquelle vous voulez avoir terminé, et l'application calcule la portion à lire chaque jour. Si vous prenez du retard, la portion s'ajuste pour rester réaliste.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Programme Tranquillité, comment ça marche ?" data-en="How does the Tranquillity program work?">Programme Tranquillité, comment ça marche ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Tranquillité met l'accent sur la régularité quotidienne. L'objectif n'est pas de finir vite, mais de maintenir une série continue : chaque jour de lecture entretient la flamme. Idéal pour ancrer une habitude durable." data-en="Tranquillity focuses on daily consistency. The goal isn't to finish fast, but to maintain a continuous streak: each day of reading keeps the flame alive. Ideal for anchoring a lasting habit.">Tranquillité met l'accent sur la régularité quotidienne. L'objectif n'est pas de finir vite, mais de maintenir une série continue : chaque jour de lecture entretient la flamme. Idéal pour ancrer une habitude durable.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Quel programme choisir ?" data-en="Which program should I choose?">Quel programme choisir ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Sérénité si vous voulez avancer sans pression. Intégrité si vous avez une date butoir précise (Mémorial, fin d'année). Tranquillité si votre priorité est de bâtir une habitude quotidienne. Plusieurs programmes peuvent être actifs simultanément." data-en="Serenity if you want to progress without pressure. Integrity if you have a specific deadline (Memorial, year-end). Tranquillity if your priority is building a daily habit. Multiple programs can be active at the same time.">Sérénité si vous voulez avancer sans pression. Intégrité si vous avez une date butoir précise (Mémorial, fin d'année). Tranquillité si votre priorité est de bâtir une habitude quotidienne. Plusieurs programmes peuvent être actifs simultanément.</p></div>
+      </div>
+    </div>
+
+    <h3 class="faq-cat-title" data-fr="Enregistrer mes lectures" data-en="Recording my readings">Enregistrer mes lectures</h3>
+    <div class="faq-list">
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Comment enregistrer une session de lecture ?" data-en="How do I record a reading session?">Comment enregistrer une session de lecture ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Appuyez sur le bouton + au centre de la barre de navigation. Choisissez le livre et le chapitre de départ, puis ceux de fin. Confirmez et appuyez sur Enregistrer." data-en="Tap the + button in the center of the navigation bar. Select the starting book and chapter, then the ending ones. Confirm and tap Save.">Appuyez sur le bouton + au centre de la barre de navigation. Choisissez le livre et le chapitre de départ, puis ceux de fin. Confirmez et appuyez sur Enregistrer.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Comment modifier ou supprimer une session ?" data-en="How do I edit or delete a session?">Comment modifier ou supprimer une session ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Dans l'onglet Objectifs, appuyez sur la session concernée dans l'historique. La fiche d'édition s'ouvre : modifiez les champs ou faites défiler vers le bas pour la supprimer." data-en="In the Goals tab, tap the session in the history. The edit form opens: modify the fields or scroll down to delete it.">Dans l'onglet Objectifs, appuyez sur la session concernée dans l'historique. La fiche d'édition s'ouvre : modifiez les champs ou faites défiler vers le bas pour la supprimer.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Comment les versets et chapitres sont-ils comptés ?" data-en="How are verses and chapters counted?">Comment les versets et chapitres sont-ils comptés ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="L'application utilise une base complète de la Bible. Elle compte tous les versets couverts par votre session, livre par livre. Les chapitres partiellement lus sont comptés en versets mais pas comme chapitres entiers." data-en="The app uses a complete Bible database. It counts all verses covered by your session, book by book. Partially read chapters are counted as verses but not as complete chapters.">L'application utilise une base complète de la Bible. Elle compte tous les versets couverts par votre session, livre par livre. Les chapitres partiellement lus sont comptés en versets mais pas comme chapitres entiers.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Puis-je enregistrer une lecture passée ?" data-en="Can I record a past reading?">Puis-je enregistrer une lecture passée ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Oui. Dans le formulaire d'ajout, le champ Date est modifiable : choisissez n'importe quelle date passée et la session sera correctement intégrée à vos statistiques." data-en="Yes. In the add form, the Date field is editable: choose any past date and the session will be correctly included in your statistics.">Oui. Dans le formulaire d'ajout, le champ Date est modifiable : choisissez n'importe quelle date passée et la session sera correctement intégrée à vos statistiques.</p></div>
+      </div>
+    </div>
+
+    <h3 class="faq-cat-title" data-fr="Lecture Vie Chrétienne" data-en="Christian Life reading">Lecture Vie Chrétienne</h3>
+    <div class="faq-list">
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Qu'est-ce que la lecture Vie Chrétienne ?" data-en="What is the Christian Life reading?">Qu'est-ce que la lecture Vie Chrétienne ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Chaque semaine, l'application affiche automatiquement la portion biblique prévue dans le programme de la réunion Vie Chrétienne. Rien à configurer : la portion de la semaine apparaît sur l'écran d'accueil et se met à jour seule." data-en="Each week, the app automatically displays the Bible portion scheduled for the Christian Life meeting. Nothing to configure: the current week's portion appears on the home screen and updates on its own.">Chaque semaine, l'application affiche automatiquement la portion biblique prévue dans le programme de la réunion Vie Chrétienne. Rien à configurer : la portion de la semaine apparaît sur l'écran d'accueil et se met à jour seule.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="La lecture hebdomadaire fonctionne-t-elle hors ligne ?" data-en="Does the weekly reading work offline?">La lecture hebdomadaire fonctionne-t-elle hors ligne ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Oui. L'application précharge en cache les portions des prochains fascicules bimestriels. La lecture de la semaine reste disponible sans connexion. Une connexion ponctuelle suffit pour rafraîchir le cache." data-en="Yes. The app preloads upcoming bimonthly issues into cache. The week's reading stays available without a connection. An occasional connection is enough to refresh the cache.">Oui. L'application précharge en cache les portions des prochains fascicules bimestriels. La lecture de la semaine reste disponible sans connexion. Une connexion ponctuelle suffit pour rafraîchir le cache.</p></div>
+      </div>
+    </div>
+
+    <h3 class="faq-cat-title" data-fr="Objectifs et notifications" data-en="Goals and notifications">Objectifs et notifications</h3>
+    <div class="faq-list">
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Comment définir un objectif quotidien ?" data-en="How do I set a daily goal?">Comment définir un objectif quotidien ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Dans l'onglet Objectifs, ouvrez la carte Objectif quotidien. Activez l'objectif, choisissez le type (versets ou chapitres), la quantité, et un rappel à l'heure de votre choix." data-en="In the Goals tab, open the Daily Goal card. Enable the goal, choose the type (verses or chapters), the quantity, and a reminder at the time of your choice.">Dans l'onglet Objectifs, ouvrez la carte Objectif quotidien. Activez l'objectif, choisissez le type (versets ou chapitres), la quantité, et un rappel à l'heure de votre choix.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Pourquoi je ne reçois pas de notifications ?" data-en="Why am I not receiving notifications?">Pourquoi je ne reçois pas de notifications ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Trois rappels existent : un rappel quotidien avec la portion du jour, un rappel du soir adaptatif (encourageant à partir de 3 jours de série) et un résumé hebdomadaire le lundi. Chacun s'active séparément dans Options › Notifications. Vérifiez aussi les autorisations dans Réglages iOS." data-en="Three reminders exist: a daily reminder with the day's portion, an adaptive evening reminder (encouraging from 3-day streaks), and a Monday weekly summary. Each is enabled independently in Options › Notifications. Also check permissions in iOS Settings.">Trois rappels existent : un rappel quotidien avec la portion du jour, un rappel du soir adaptatif (encourageant à partir de 3 jours de série) et un résumé hebdomadaire le lundi. Chacun s'active séparément dans Options › Notifications. Vérifiez aussi les autorisations dans Réglages iOS.</p></div>
+      </div>
+    </div>
+
+    <h3 class="faq-cat-title" data-fr="Série, défis et badges" data-en="Streak, challenges and badges">Série, défis et badges</h3>
+    <div class="faq-list">
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Qu'est-ce que la série (streak) ?" data-en="What is the streak?">Qu'est-ce que la série (streak) ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="La série représente le nombre de jours consécutifs avec au moins une session enregistrée. Elle est visible dans Objectifs, Statistiques et Défis." data-en="The streak is the number of consecutive days with at least one recorded session. Visible in Goals, Statistics and Challenges.">La série représente le nombre de jours consécutifs avec au moins une session enregistrée. Elle est visible dans Objectifs, Statistiques et Défis.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Comment fonctionnent les défis ?" data-en="How do challenges work?">Comment fonctionnent les défis ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Les défis suivent votre série de jours consécutifs (7, 14, 30 jours…). La barre de progression se met à jour automatiquement et le défi est marqué comme accompli au passage du seuil." data-en="Challenges follow your consecutive-day streak (7, 14, 30 days…). The progress bar updates automatically and the challenge is marked completed when the threshold is reached.">Les défis suivent votre série de jours consécutifs (7, 14, 30 jours…). La barre de progression se met à jour automatiquement et le défi est marqué comme accompli au passage du seuil.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Comment se débloquent les badges ?" data-en="How do badges unlock?">Comment se débloquent les badges ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Plus de 100 badges se débloquent automatiquement selon votre activité : premières sessions, séries de jours, volumes lus, sections bibliques complétées, programmes terminés, lectures spéciales. Une fois débloqué, un badge reste acquis." data-en="Over 100 badges unlock automatically based on your activity: first sessions, day streaks, volumes read, completed Bible sections, finished programs, special readings. Once unlocked, a badge stays earned.">Plus de 100 badges se débloquent automatiquement selon votre activité : premières sessions, séries de jours, volumes lus, sections bibliques complétées, programmes terminés, lectures spéciales. Une fois débloqué, un badge reste acquis.</p></div>
+      </div>
+    </div>
+
+    <h3 class="faq-cat-title" data-fr="Programme du Mémorial" data-en="Memorial program">Programme du Mémorial</h3>
+    <div class="faq-list">
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Qu'est-ce que le programme du Mémorial ?" data-en="What is the Memorial program?">Qu'est-ce que le programme du Mémorial ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Un programme spécial couvrant les événements de la dernière semaine de Jésus sur terre, depuis son arrivée à Béthanie jusqu'à sa résurrection. Proposé chaque année pendant la période précédant le Mémorial." data-en="A special program covering the events of Jesus's last week on earth, from his arrival in Bethany to his resurrection. Offered each year during the period leading up to the Memorial.">Un programme spécial couvrant les événements de la dernière semaine de Jésus sur terre, depuis son arrivée à Béthanie jusqu'à sa résurrection. Proposé chaque année pendant la période précédant le Mémorial.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Comment activer le programme du Mémorial ?" data-en="How do I enable the Memorial program?">Comment activer le programme du Mémorial ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Dans Options › Programme spécial, activez Lecture du Mémorial. La carte du programme apparaît dans l'onglet Objectifs pendant la période concernée." data-en="In Options › Special Program, enable Memorial Reading. The program card appears in the Goals tab during the relevant period.">Dans Options › Programme spécial, activez Lecture du Mémorial. La carte du programme apparaît dans l'onglet Objectifs pendant la période concernée.</p></div>
+      </div>
+    </div>
+
+    <h3 class="faq-cat-title" data-fr="Sauvegarde et confidentialité" data-en="Backup and privacy">Sauvegarde et confidentialité</h3>
+    <div class="faq-list">
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="L'application fonctionne-t-elle sans connexion ?" data-en="Does the app work without an internet connection?">L'application fonctionne-t-elle sans connexion ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Oui, entièrement. Toutes les données — sessions, statistiques, progression — sont stockées localement. Aucune connexion n'est requise pour l'utiliser au quotidien." data-en="Yes, entirely. All data — sessions, statistics, progress — is stored locally. No connection is required for daily use.">Oui, entièrement. Toutes les données — sessions, statistiques, progression — sont stockées localement. Aucune connexion n'est requise pour l'utiliser au quotidien.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Comment sauvegarder mes données ?" data-en="How do I back up my data?">Comment sauvegarder mes données ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Dans Options › Données, appuyez sur Exporter les données. Un fichier JSON est généré et partagé via le panneau iOS (iCloud Drive, AirDrop, e-mail). Il contient toutes vos sessions et réglages." data-en="In Options › Data, tap Export data. A JSON file is generated and shared via the iOS panel (iCloud Drive, AirDrop, email). It contains all your sessions and settings.">Dans Options › Données, appuyez sur Exporter les données. Un fichier JSON est généré et partagé via le panneau iOS (iCloud Drive, AirDrop, e-mail). Il contient toutes vos sessions et réglages.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Mes données sont-elles perdues si je supprime l'app ?" data-en="Is my data lost if I delete the app?">Mes données sont-elles perdues si je supprime l'app ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Oui — les données sont locales. Pensez à exporter régulièrement une sauvegarde via Options › Données pour ne rien perdre en cas de réinstallation ou de changement d'appareil." data-en="Yes — data is local. Remember to regularly export a backup via Options › Data to avoid losing anything in case of reinstallation or device change.">Oui — les données sont locales. Pensez à exporter régulièrement une sauvegarde via Options › Données pour ne rien perdre en cas de réinstallation ou de changement d'appareil.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="Sur quel appareil fonctionne l'application ?" data-en="What device does the app run on?">Sur quel appareil fonctionne l'application ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="L'application est universelle : elle fonctionne sur iPhone et iPad (iOS). Une version Android est envisagée pour l'avenir." data-en="The app is universal: it runs on both iPhone and iPad (iOS). An Android version is being considered for the future.">L'application est universelle : elle fonctionne sur iPhone et iPad (iOS). Une version Android est envisagée pour l'avenir.</p></div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          <span data-fr="L'application est-elle liée à JW Library ?" data-en="Is the app linked to JW Library?">L'application est-elle liée à JW Library ?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><p data-fr="Ma Lecture Biblique est un projet indépendant, sans affiliation officielle. L'app peut ouvrir un verset directement dans JW Library d'un seul tap, et fonctionne aussi de manière autonome." data-en="My Bible Reading is an independent project with no official affiliation. The app can open a verse directly in JW Library with one tap, and also works on its own.">Ma Lecture Biblique est un projet indépendant, sans affiliation officielle. L'app peut ouvrir un verset directement dans JW Library d'un seul tap, et fonctionne aussi de manière autonome.</p></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="download" class="cta-section">
+  <div class="cta-glow"></div>
+  <span class="section-tag" data-fr="Téléchargement" data-en="Download">Téléchargement</span>
+  <h2 class="cta-title" data-fr="Commencez à lire aujourd'hui" data-en="Start reading today">Commencez à lire aujourd'hui</h2>
+  <p class="cta-sub" data-fr="Une application offerte par passion, sans inscription ni abonnement. Bientôt sur l'App Store." data-en="An app offered out of passion, with no sign-up or subscription. Coming soon to the App Store.">Une application offerte par passion, sans inscription ni abonnement. Bientôt sur l'App Store.</p>
+  <div class="cta-actions">
+    <a href="#" class="btn-appstore">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      <div class="store-label">
+        <small data-fr="Télécharger sur" data-en="Download on">Télécharger sur</small>
+        <span>App Store</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-wrap reveal">
+    <div class="contact-header">
+      <span class="section-tag" data-fr="Contact" data-en="Contact">Contact</span>
+      <h2 class="section-title" data-fr="Une question ? Un retour ?" data-en="A question? Feedback?">Une question ? Un retour ?</h2>
+      <p class="section-subtitle" style="margin:0 auto;text-align:center;" data-fr="N'hésitez pas à nous écrire. Nous lisons chaque message." data-en="Don't hesitate to write to us. We read every message.">N'hésitez pas à nous écrire. Nous lisons chaque message.</p>
+    </div>
+    <form id="contact-form" onsubmit="handleSubmit(event)">
+      <div class="form-group">
+        <label class="form-label" for="fname" data-fr="Votre nom" data-en="Your name">Votre nom</label>
+        <input class="form-input" id="fname" name="name" type="text" placeholder="Jean Dupont" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="femail" data-fr="Adresse e-mail" data-en="Email address">Adresse e-mail</label>
+        <input class="form-input" id="femail" name="email" type="email" placeholder="jean@exemple.com" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="fmessage" data-fr="Message" data-en="Message">Message</label>
+        <textarea class="form-textarea" id="fmessage" name="message" placeholder="Votre message..." required></textarea>
+      </div>
+      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
+      <button type="submit" class="btn-submit" data-fr="Envoyer le message" data-en="Send message">Envoyer le message</button>
+      <p id="form-success" style="display:none;text-align:center;color:oklch(68% 0.2 155);font-size:14px;margin-top:16px;"></p>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#home" class="footer-logo">
+    <div class="footer-logo-icon">📖</div>
+    <span class="footer-logo-text" data-fr="Ma Lecture Biblique" data-en="My Bible Reading">Ma Lecture Biblique</span>
+  </a>
+  <ul class="footer-links">
+    <li><a href="#features" data-fr="Fonctionnalités" data-en="Features">Fonctionnalités</a></li>
+    <li><a href="#screenshots" data-fr="Aperçu" data-en="Preview">Aperçu</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#contact" data-fr="Contact" data-en="Contact">Contact</a></li>
+    <li><a href="fr.html" id="privacy-link" data-fr="Confidentialité" data-en="Privacy">Confidentialité</a></li>
+  </ul>
+  <p class="footer-copy">© 2026 Ma Lecture Biblique</p>
+</footer>
+
+
+<script>
+// ── Language ──
+let currentLang = 'fr';
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('[data-fr]').forEach(el => {
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.placeholder = lang === 'fr' ? el.dataset.fr : el.dataset.en;
+    } else {
+      el.textContent = lang === 'fr' ? el.dataset.fr : el.dataset.en;
+    }
+  });
+  document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  const privacy = document.getElementById('privacy-link');
+  if (privacy) privacy.href = lang === 'fr' ? 'fr.html' : 'en.html';
+  document.documentElement.lang = lang;
+}
+
+// ── FAQ ──
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// ── Gallery drag ──
+(function() {
+  const track = document.getElementById('gallery-track');
+  const dotsContainer = document.getElementById('gallery-dots');
+  if (!track) return;
+  const slides = track.querySelectorAll('.gallery-slide');
+  const total = slides.length;
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'gallery-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => {
+      const slideW = slides[0].offsetWidth + 20;
+      track.scrollTo({ left: slideW * i, behavior: 'smooth' });
+    });
+    dotsContainer.appendChild(dot);
+  }
+  track.addEventListener('scroll', () => {
+    const slideW = slides[0].offsetWidth + 20;
+    const idx = Math.round(track.scrollLeft / slideW);
+    dotsContainer.querySelectorAll('.gallery-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+  }, { passive: true });
+  let isDown = false, startX = 0, scrollLeft = 0;
+  track.addEventListener('mousedown', e => { isDown = true; track.classList.add('dragging'); startX = e.pageX - track.offsetLeft; scrollLeft = track.scrollLeft; });
+  document.addEventListener('mouseup', () => { isDown = false; track.classList.remove('dragging'); });
+  track.addEventListener('mousemove', e => { if (!isDown) return; e.preventDefault(); track.scrollLeft = scrollLeft - (e.pageX - track.offsetLeft - startX) * 1.5; });
+})();
+
+// ── Reveal on scroll ──
+(function() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }});
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+})();
+
+// ── Contact form (Formspree) ──
+function handleSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const s = document.getElementById('form-success');
+  const originalLabel = submitBtn.textContent;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = currentLang === 'fr' ? 'Envoi…' : 'Sending…';
+
+  fetch('https://formspree.io/f/maqvnlew', {
+    method: 'POST',
+    body: new FormData(form),
+    headers: { 'Accept': 'application/json' }
+  })
+  .then(res => {
+    if (res.ok) {
+      s.textContent = currentLang === 'fr' ? 'Message envoyé, merci !' : 'Message sent, thank you!';
+      s.style.color = 'oklch(68% 0.2 155)';
+      form.reset();
+    } else {
+      return res.json().then(data => {
+        const msg = data.errors ? data.errors.map(x => x.message).join(', ') :
+          (currentLang === 'fr' ? 'Erreur lors de l\'envoi. Réessayez plus tard.' : 'Submission error. Please try again later.');
+        s.textContent = msg;
+        s.style.color = 'oklch(65% 0.2 25)';
+      });
+    }
+  })
+  .catch(() => {
+    s.textContent = currentLang === 'fr' ? 'Erreur réseau. Vérifiez votre connexion.' : 'Network error. Please check your connection.';
+    s.style.color = 'oklch(65% 0.2 25)';
+  })
+  .finally(() => {
+    s.style.display = 'block';
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalLabel;
+    setTimeout(() => { s.style.display = 'none'; }, 5000);
+  });
+}
+
+// ── Mobile menu ──
+function toggleMobileMenu() {
+  const links = document.querySelector('.nav-links');
+  if (!links) return;
+  const isVisible = links.style.display === 'flex';
+  links.style.cssText = isVisible ? '' : 'display:flex;flex-direction:column;position:fixed;top:64px;left:0;right:0;background:#0e0e1a;border-bottom:1px solid rgba(255,255,255,0.07);padding:20px 24px;gap:16px;z-index:99;';
+}
+</script>
+
+</body>
+</html>
